@@ -1,19 +1,20 @@
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import ModelView from "./ModelView"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { yellowImg } from "../utils"
 
 import * as THREE from 'three'
 import { Canvas } from "@react-three/fiber";
 import { View } from "@react-three/drei";
 import { models, sizes } from "../constants"
+import { animateWithGsapTimeLine } from "../utils/animation"
 
 
 const Model = () => {
     const [size, setSize] = useState('small');
     const [model, setModel] = useState({
-        title: 'iPhone 15 pto in Natural titanium',
+        title: 'iPhone 15 pro in Natural titanium',
         color: ['#8F8A81', '#FFE7B9', '#6F6C64'],
         img: yellowImg,
     })
@@ -29,6 +30,24 @@ const Model = () => {
     //rotation
     const [smallRotation, setSmallRotation] = useState(0);
     const [largeRotation, setLargeRotation] = useState(0);
+
+    const tl = gsap.timeline();
+
+    useEffect(() => {
+        if (size === 'large') {
+            animateWithGsapTimeLine(tl, small, smallRotation, '#view1', '#view2', {
+                transform: 'translateX(-100%)',
+                duration: 2
+            })
+        } 
+
+        if (size === 'small') {
+            animateWithGsapTimeLine(tl, large,largeRotation, '#view2', '#view1', {
+                transform: 'translateX(0)',
+                duration: 2
+            })
+        }
+    }, [size])
 
     useGSAP(() => {
         gsap.to('#heading', {
@@ -51,7 +70,7 @@ const Model = () => {
                         groupRef={small}
                         gsapType='view1'
                         controlRef={cameraControlSmall}
-                        setRotationStage={setSmallRotation}
+                        setRotationState={setSmallRotation}
                         item={model}
                         size={size}
                     />
@@ -61,7 +80,7 @@ const Model = () => {
                         groupRef={large}
                         gsapType='view2'
                         controlRef={cameraControlLarge}
-                        setRotationStage={setLargeRotation}
+                        setRotationState={setLargeRotation}
                         item={model}
                         size={size}
                     />
@@ -79,9 +98,10 @@ const Model = () => {
                         }}
                         eventSource={document.getElementById('root')}
                     >
-                        <View.Port/>
+                        <View.Port />
                     </Canvas>
                 </div>
+
                 <div className="mx-auto w-full">
                     <p className="text-sm font-light text-center mb-5">{model.title}</p>
 
